@@ -24,15 +24,29 @@ public class AuthController(ApplicationDbContext context, JwtService jwtService)
         if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             return Conflict(new { message = "Email already registered." });
 
+        var role = await _context.Roles.FirstOrDefaultAsync(r=>r.Id==request.RoleId);
+
+        if (role == null)
+        {
+            return BadRequest(new { messagge = "Invalid Role Selected" });
+        }
+
         var user = new User
         {
             Email = request.Email,
             FullName = request.FullName,
-            PasswordHash = _passwordHasher.HashPassword(new User(), request.Password)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
         };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
+
+
+        var userRole = new UserRole
+        {
+            UserId = user.Id,
+            RoleId = role.Id
+        };
 
         return Ok(new { message = "User registered successfully." });
     }
