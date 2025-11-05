@@ -9,7 +9,7 @@ namespace AuthApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[AllowAnonymous]
 public class RoleController(ApplicationDbContext context) : ControllerBase
 {
     private readonly ApplicationDbContext _context = context;
